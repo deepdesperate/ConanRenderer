@@ -2,56 +2,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include "display.h"
+#include "vector.h"
+
+
+////// Declare an array of vectors/points
+
+const int N_POINTS= 9*9*9;
+vec3_t cube_points[N_POINTS];  // 9x9x9 cube
+vec2_t projected_points[N_POINTS];
+
+vec3_t camera_position = { .x = 0, .y = 0, .z = -5};
+vec3_t cube_rotation = { .x = 0, .y = 0, .z = 0};
+
+float fov_factor = 640;
 
 bool is_running = false;
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-
-uint32_t* color_buffer = NULL;
-SDL_Texture* color_buffer_texture = NULL;
-
-int window_width = 800;
-int window_height = 600;
-
-bool initialize_window(void) {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        fprintf(stderr, "Error initializing SDL.\n");
-        return false;
-    }
-
-    // Use SDL to query what is the fullscreen max. width and height
-    SDL_DisplayMode display_mode;
-    SDL_GetCurrentDisplayMode(0, &display_mode);
-    window_width = display_mode.w;
-    window_height = display_mode.h;
-
-
-    // Create a SDL window
-    window = SDL_CreateWindow(
-        NULL,
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        window_width,
-        window_height,
-        SDL_WINDOW_BORDERLESS
-    );
-
-    if (!window){
-        fprintf(stderr, "Error Creating SDL Window.\n");
-        return false;
-    }
-
-    //
-    // TODO: Create a SDL renderer
-    renderer = SDL_CreateRenderer(window, -1, 0);
-    if (!renderer) {
-        fprintf(stderr, "Error creating SDL renderer.\n");
-        return false;
-    }
-    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-
-    return true;
-}
 
 void setup(void) {
     // Allocate the required memory in bytes to hold the color buffer
@@ -65,6 +31,19 @@ void setup(void) {
         window_width,
         window_height
     );
+
+    int point_count = 0;
+    
+    // start loading my array of vectors
+    // from -1 ro 1 (in this 9x9x9 cube)
+    for( float x = -1; x <= 1; x += 0.25){
+        for(float y = -1; y <= 1; y += 0.25){
+            for( float z = -1; z <= 1; z += 0.25) {
+                vec3_t new_point = {.x = x, .y = y, .z = z};
+                cube_points[point_count++] = new_point;
+            }
+        }
+    }
 }
 
 void process_input(void) {
@@ -82,45 +61,59 @@ void process_input(void) {
     }
 }
 
+// Function that recieves a 3D vector and returns a projected 2D point
+
+vec2_t project(vec3_t point){
+    vec2_t projected_point = {
+        .x = (fov_factor * point.x) / point.z,
+        .y = (fov_factor * point.y) / point.z
+    };
+    return projected_point;
+}
+
 void update(void){
-    // TODO:
-}
+    cube_rotation.x += 0.01;
+    cube_rotation.y += 0.01;
+    cube_rotation.z += 0.01;
 
-void render_color_buffer(void){
-    // Puts color_buffer to the color_buffer_texture
-    SDL_UpdateTexture(
-        color_buffer_texture,
-        NULL,
-        color_buffer,
-        (int)(window_width * sizeof(uint32_t))
-    );
-    SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
-}
+    for (int i = 0; i < N_POINTS; i++ ){
+        vec3_t point = cube_points[i];
 
-void clear_color_buffer(uint32_t color) {
-    for (int y = 0; y < window_height; y++){
-        for( int x=0; x < window_width; x++){
-            color_buffer[(window_width * y) + x ] = color;
-        }
-    } 
+        vec3_t transformed_point = vec3_rotate_x(point, cube_rotation.x);
+        transformed_point = vec3_rotate_y(transformed_point, cube_rotation.y);
+        transformed_point = vec3_rotate_z(transformed_point, cube_rotation.z);
+
+        // Translate the points away from the camera
+        transformed_point.z -= camera_position.z;
+
+        // Project the current point
+        vec2_t projected_point = project(transformed_point);
+
+        // Save the projected 2D vector in the array of projected points
+        projected_points[i] = projected_point;
+
+    }
 }
 
 void render(void){
-    // RGBA
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    draw_grid();
+
+    // Loop all projected points and render them
+    for( int i = 0; i < N_POINTS; i++ ) {
+        vec2_t projected_point = projected_points[i];
+        draw_rect( 
+            projected_point.x + (window_width / 2),
+            projected_point.y + (window_height / 2),
+            4,
+            4,
+            0xFFFFFF00
+        );
+    }
 
     render_color_buffer();
-    clear_color_buffer(0xFFFFFF00);
+    clear_color_buffer(0xFF000000);
 
     SDL_RenderPresent(renderer);
-}
-
-void destroy_window(void) {
-    free(color_buffer);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window); 
-    SDL_Quit();
 }
 
 int main(void){
