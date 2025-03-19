@@ -47,25 +47,27 @@ void setup(void) {
     );
 
     // Initialize the perspective projection matrix
-    float fov = M_PI / 3.0;
-    float aspect = (float)window_height / (float)window_width;
-    float z_near = 0.1;
-    float z_far = 100.0;
-    proj_matrix = mat4_make_perspective(fov, aspect, z_near, z_far);
+    float aspectx = (float)window_width / (float)window_height ;
+    float aspecty = (float)window_height / (float)window_width;
+    float fovy = M_PI / 3.0;
+    float fovx = atan(tan(fovy / 2) * aspectx) * 2.0;
+    float z_near = 1.0;
+    float z_far = 20.0;
+    proj_matrix = mat4_make_perspective(fovy, aspecty, z_near, z_far);
 
     // Initialize frustum planes with a point and a normal
-    init_frustum_planes(fov, z_near, z_far);
+    init_frustum_planes(fovx, fovy, z_near, z_far);
 
     // Loads the cub values in our mesh data structure
     // load_cube_mesh_data();
-    load_obj_file_data("./assets/cube.obj");
-    // load_obj_file_data("./assets/f22.obj");
+    // load_obj_file_data("./assets/cube.obj");
+    load_obj_file_data("./assets/f22.obj");
     // load_obj_file_data("./assets/efa.obj");
 
     // Load the texture information from a png file
-    // load_png_texture_data("./assets/cube.png");
+    load_png_texture_data("./assets/cube.png");
     // load_png_texture_data("./assets/f22.png");
-    load_png_texture_data("./assets/efa.png");
+    // load_png_texture_data("./assets/efa.png");
 
 }
 
@@ -101,9 +103,9 @@ void process_input(void) {
             if (event.key.keysym.sym == SDLK_DOWN)
                 camera.position.y -= 3.0 * delta_time;
             if (event.key.keysym.sym == SDLK_a)
-                camera.yaw += 1.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_d)
                 camera.yaw -= 1.0 * delta_time;
+            if (event.key.keysym.sym == SDLK_d)
+                camera.yaw += 1.0 * delta_time;
             if (event.key.keysym.sym == SDLK_w){
                 camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time);
                 camera.position = vec3_add(camera.position, camera.forward_velocity);
@@ -134,10 +136,10 @@ void update(void){
     // Initialize the counter of triangles to render for the current fram
     num_triangles_to_render = 0;
 
-    // mesh.rotation.x += 0.06 * delta_time;
-    // mesh.rotation.y += 0.9 * delta_time;
-    // mesh.rotation.z += 0.2 * delta_time;
-    mesh.translation.z = 5.0;
+    // mesh.rotation.x += 0.0 * delta_time;
+    // mesh.rotation.y += 0.0 * delta_time;
+    // mesh.rotation.z += 0.0 * delta_time;
+    mesh.translation.z = 4.0;
 
     // Initialize the target looking at the positive z-axis
     vec3_t target = {0, 0, 1};
@@ -161,13 +163,12 @@ void update(void){
     // Loop all triangle faces of our mesh
     int num_faces = array_length(mesh.faces);
     for (int i = 0; i < num_faces; i++){
-
         face_t mesh_face = mesh.faces[i];
         
         vec3_t face_vertices[3];
-        face_vertices[0] = mesh.vertices[mesh_face.a];
-        face_vertices[1] = mesh.vertices[mesh_face.b];
-        face_vertices[2] = mesh.vertices[mesh_face.c];
+        face_vertices[0] = mesh.vertices[mesh_face.a ];
+        face_vertices[1] = mesh.vertices[mesh_face.b ];
+        face_vertices[2] = mesh.vertices[mesh_face.c ];
 
         vec4_t transformed_vertices[3];
 
@@ -219,16 +220,21 @@ void update(void){
 
         // Bypass the triangle that are looking away from the camera
         if (cull_method == CULL_BACKFACE){
+            // Backface culling, bypassing triangles that are looking away from the camera
             if ( dot_normal_camera < 0 ) {
                 continue;
             }
         }
 
-        // Create a polygon from the original transform create_polygon_from_triangle() -> in
-        polygon_t polygon = create_polygon_from_triangle(
+        // Create a polygon from the original transform polygon_from_triangle() -> in
+        polygon_t polygon = polygon_from_triangle(
             vec3_from_vec4(transformed_vertices[0]),
             vec3_from_vec4(transformed_vertices[1]),
-            vec3_from_vec4(transformed_vertices[2]) 
+            vec3_from_vec4(transformed_vertices[2]),
+            mesh_face.a_uv,
+            mesh_face.b_uv,
+            mesh_face.c_uv
+            
         );
 
         // Clip the polygons and return a new polygon with potential new vertices
@@ -285,9 +291,9 @@ void update(void){
                     {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w},
                 },
                 .texcoords = {
-                    { mesh_face.a_uv.u, mesh_face.a_uv.v },
-                    { mesh_face.b_uv.u, mesh_face.b_uv.v },
-                    { mesh_face.c_uv.u, mesh_face.c_uv.v }
+                    { triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v },
+                    { triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v },
+                    { triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v }
                 },
                 .color = triangle_color
             };
@@ -295,11 +301,10 @@ void update(void){
             // Save the projected triangle in the array of triangles to render
             // triangles_to_render[i] = projected_triangle;
             if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH){
-                triangles_to_render[num_triangles_to_render] = triangle_to_render;
+                triangles_to_render[num_triangles_to_render++] = triangle_to_render;
             }
         }
     }
-
 
 }
 
