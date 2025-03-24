@@ -132,7 +132,7 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane){
         if (current_dot > 0) {
             // Insert current vertex in the list of "Inside vertices"
             inside_vertices[num_inside_vertices] = vec3_clone(current_vertex);
-            inside_texcoords[num_inside_vertices] = tex2_clone(current_vertex);
+            inside_texcoords[num_inside_vertices] = tex2_clone(current_texcoord);
             num_inside_vertices++;
         }
 
@@ -147,7 +147,7 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane){
     // At the end, copy the list of inside vertics into the destination polygon (out parameter)
     for(int i = 0; i < num_inside_vertices; i++){
         polygon->vertices[i] = vec3_clone(&inside_vertices[i]);
-        polygon->texcoords[i] = tex2_clone(&inside_vertices[i]);
+        polygon->texcoords[i] = tex2_clone(&inside_texcoords[i]);
 
     }
     polygon->num_vertices = num_inside_vertices;
