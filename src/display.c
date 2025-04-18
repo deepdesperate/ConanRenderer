@@ -84,7 +84,7 @@ void set_cull_method(int method){
     cull_method = method;
 }
 
-bool is_cull_backface(void){
+bool should_cull_backface(void){
     return cull_method == CULL_BACKFACE;
 }
 

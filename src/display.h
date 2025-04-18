@@ -29,7 +29,7 @@ int get_window_height(void);
 
 void set_render_method(int method);
 void set_cull_method(int method);
-bool is_cull_backface(void);
+bool should_cull_backface(void);
 
 bool should_render_filled_triangles(void);
 bool should_render_textured_triangles(void);
