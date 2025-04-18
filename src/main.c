@@ -53,8 +53,9 @@ void setup(void) {
 
     // TODO: obj, tex, scale, translation, rot
     load_mesh("./assets/f22.obj", "./assets/f22.png", vec3_new(1, 1, 1), vec3_new(0, -1.3, +5), vec3_new(0, -M_PI/2, 0));
-    load_mesh("./assets/efa.obj", "./assets/efa.png", vec3_new(1, 1, 1), vec3_new(-2, 1.3, +9), vec3_new(0, -M_PI/2, 0));
-    
+    load_mesh("./assets/efa.obj", "./assets/efa.png", vec3_new(1, 1, 1), vec3_new(-2, -1.3, +9), vec3_new(0, -M_PI/2, 0));
+    load_mesh("./assets/f117.obj", "./assets/efa.png", vec3_new(1, 1, 1), vec3_new(+2, -1.3, +9), vec3_new(0, -M_PI/2, 0));
+
 }
 
 void process_input(void) {
