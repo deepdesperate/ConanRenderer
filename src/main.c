@@ -33,7 +33,7 @@ void setup(void) {
     // render_method = RENDER_TEXTURED_WIRE;
     // cull_method = CULL_BACKFACE;
 
-    set_render_method(RENDER_WIRE);
+    set_render_method(RENDER_TEXTURED);
     set_cull_method(CULL_BACKFACE);
 
     // Initializa the scene light direction
@@ -52,8 +52,8 @@ void setup(void) {
     init_frustum_planes(fovx, fovy, z_near, z_far);
 
     // TODO: obj, tex, scale, translation, rot
-    load_mesh("./assets/f22.obj", "./assets/f22.png", vec3_new(1, 1, 1), vec3_new(-3, 0, +3), vec3_new(0, 0, 0));
-    load_mesh("./assets/efa.obj", "./assets/efa.png", vec3_new(1, 1, 1), vec3_new(+3, 0, +3), vec3_new(0, 0, 0));
+    load_mesh("./assets/f22.obj", "./assets/f22.png", vec3_new(1, 1, 1), vec3_new(0, -1.3, +5), vec3_new(0, -M_PI/2, 0));
+    load_mesh("./assets/efa.obj", "./assets/efa.png", vec3_new(1, 1, 1), vec3_new(-2, 1.3, +9), vec3_new(0, -M_PI/2, 0));
     
 }
 
@@ -194,9 +194,10 @@ void process_graphics_pipeline_stages(mesh_t* mesh){
 
             mat4_t world_matrix = mat4_identity();
             world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
-            world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
-            world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
+            world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
+
+            world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
             world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
             // Multiply the world matrix by the original vector
@@ -241,12 +242,12 @@ void process_graphics_pipeline_stages(mesh_t* mesh){
 
         // Break the clipped polygon apart back into individual triangles
         triangle_t triangles_after_clipping[MAX_NUM_POLY_TRIANGLES];
-        int num_triangles_after_clippling = 0;
+        int num_triangles_after_clipping = 0;
 
-        triangles_from_polygon(&polygon, triangles_after_clipping, &num_triangles_after_clippling);
+        triangles_from_polygon(&polygon, triangles_after_clipping, &num_triangles_after_clipping);
 
         // Loops all the assembled triangles after clipping
-        for(int t = 0; t < num_triangles_after_clippling; t++ ){
+        for(int t = 0; t < num_triangles_after_clipping; t++ ){
 
             triangle_t triangle_after_clipping = triangles_after_clipping[t];
 
