@@ -4,7 +4,7 @@
 #include "mesh.h"
 #include "upng.h"
 
-#define MAX_NUM_MESHES 100
+#define MAX_NUM_MESHES 1000000
 static mesh_t meshes[MAX_NUM_MESHES];
 static int mesh_count = 0;
 

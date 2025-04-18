@@ -4,6 +4,7 @@
 
 ## Overview:
 
+![ConanRenderer](docs/images/ConanRenderer2.png)
 ![ConanRenderer](docs/images/ConanRenderer.png)
 
 ConanRenderer uses SDL for basic rendering pixels to the system.
