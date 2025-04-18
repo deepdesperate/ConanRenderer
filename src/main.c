@@ -45,7 +45,7 @@ void setup(void) {
     float fovy = M_PI / 3.0;
     float fovx = atan(tan(fovy / 2) * aspectx) * 2.0;
     float z_near = 1.0;
-    float z_far = 20.0;
+    float z_far = 50.0;
     proj_matrix = mat4_make_perspective(fovy, aspecty, z_near, z_far);
 
     // Initialize frustum planes with a point and a normal
@@ -192,11 +192,11 @@ void process_graphics_pipeline_stages(mesh_t* mesh){
             // Create a World Matrix combining scale, rotation and translation matrices
             // [L] * [R] * [S] * [Identity ] = [World_matrix]
 
-            mat4_t world_matrix = mat4_identity();
+            world_matrix = mat4_identity();
+            
             world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
-
             world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
             world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
@@ -256,7 +256,7 @@ void process_graphics_pipeline_stages(mesh_t* mesh){
             // Loop all three vertices to perform projection
             for (int j = 0; j < 3; j++){
                 // Project the current vertex
-                projected_points[j] = mat4_mul_vec4_project(proj_matrix, triangle_after_clipping.points[j]);
+                projected_points[j] = mat4_mul_vec4(proj_matrix, triangle_after_clipping.points[j]);
                 
                 // Perform perspective divide
                 if (projected_points[j].w != 0) {
