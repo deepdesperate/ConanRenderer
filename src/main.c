@@ -61,10 +61,11 @@ void process_input(void) {
     SDL_Event event;
     while(SDL_PollEvent(&event)){
         switch (event.type) {
-            case SDL_QUIT:
+            case SDL_QUIT: {
                 is_running = false;
                 break;
-            case SDL_KEYDOWN:
+            }
+            case SDL_KEYDOWN: {
                 if( event.key.keysym.sym == SDLK_ESCAPE){
                     is_running = false;
                     break;
@@ -101,16 +102,6 @@ void process_input(void) {
                     set_cull_method(CULL_NONE);
                     break;
                 }
-                if (event.key.keysym.sym == SDLK_UP){
-                    update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time));
-                    update_camera_position(vec3_add(get_camera_direction(), get_camera_forward_velocity()));
-                    break;
-                }
-                if (event.key.keysym.sym == SDLK_DOWN){
-                    update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time));
-                    update_camera_position(vec3_sub(get_camera_direction(), get_camera_forward_velocity()));
-                    break;
-                }
                 if (event.key.keysym.sym == SDLK_w){
                     rotate_camera_pitch(+3.0 * delta_time);
                     break;
@@ -127,7 +118,18 @@ void process_input(void) {
                     rotate_camera_yaw(-1.0 * delta_time);
                     break;
                 }
+                if (event.key.keysym.sym == SDLK_UP){
+                    update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time));
+                    update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_DOWN){
+                    update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time));
+                    update_camera_position(vec3_sub(get_camera_position(), get_camera_forward_velocity()));
+                    break;
+                }
                 break;
+            }
         }
     }
 }
@@ -177,9 +179,9 @@ void process_graphics_pipeline_stages(mesh_t* mesh){
         face_t mesh_face = mesh->faces[i];
         
         vec3_t face_vertices[3];
-        face_vertices[0] = mesh->vertices[mesh_face.a ];
-        face_vertices[1] = mesh->vertices[mesh_face.b ];
-        face_vertices[2] = mesh->vertices[mesh_face.c ];
+        face_vertices[0] = mesh->vertices[mesh_face.a - 1];
+        face_vertices[1] = mesh->vertices[mesh_face.b - 1];
+        face_vertices[2] = mesh->vertices[mesh_face.c - 1];
 
         vec4_t transformed_vertices[3];
 

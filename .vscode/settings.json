@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "triangle.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "vector.h": "c"
     }
 }
