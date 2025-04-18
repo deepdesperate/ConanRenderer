@@ -88,7 +88,7 @@ vec3_t vec3_mul(vec3_t v, float factor){
     vec3_t result = {
         .x = v.x * factor,
         .y = v.y * factor,
-        .z = v.y * factor
+        .z = v.z * factor
     };
     return result;
 }
@@ -134,7 +134,7 @@ vec3_t vec3_rotate_y(vec3_t v, float angle){
     vec3_t rotated_vector = {
         .x = v.x * cos(angle) - v.z * sin(angle),
         .y = v.y,
-        .z = v.x * sin(angle) + v.z * cos(angle)
+        .z = -v.x * sin(angle) + v.z * cos(angle)
     };
     return rotated_vector;
 }

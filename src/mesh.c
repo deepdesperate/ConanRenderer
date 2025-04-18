@@ -4,7 +4,7 @@
 #include "mesh.h"
 #include "upng.h"
 
-#define MAX_NUM_MESHES 10
+#define MAX_NUM_MESHES 100
 static mesh_t meshes[MAX_NUM_MESHES];
 static int mesh_count = 0;
 
@@ -36,7 +36,7 @@ void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
         if( strncmp(line, "v ", 2) == 0){
             vec3_t vertex;
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-            array_push(mesh->vertices, vertex);
+            array_push(meshes[mesh_count].vertices, vertex);
         }
 
         // Texture coordinate information
@@ -57,9 +57,9 @@ void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
                 &vertex_indices[2], &texture_indices[2], &normal_indices[2]
             );
             face_t face = {
-                .a = vertex_indices[0] - 1,
-                .b = vertex_indices[1] - 1,
-                .c = vertex_indices[2] - 1,
+                .a = vertex_indices[0],
+                .b = vertex_indices[1],
+                .c = vertex_indices[2],
                 .a_uv = texcoords[texture_indices[0] - 1],  // -1 cuz, the indexing in .obj starts from 1;
                 .b_uv = texcoords[texture_indices[1] - 1],
                 .c_uv = texcoords[texture_indices[2] - 1],
@@ -70,6 +70,7 @@ void load_mesh_obj_data(mesh_t* mesh, char* obj_filename){
         }
     }
     array_free(texcoords);
+    fclose(file);
 }
 
 void load_mesh_png_data(mesh_t* mesh, char* png_filename) {

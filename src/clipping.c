@@ -30,8 +30,8 @@ void init_frustum_planes(float fovx, float fovy, float z_near, float z_far) {
 	float cos_half_fovx = cos(fovx / 2);
 	float sin_half_fovx = sin(fovx / 2);
 
-    float cos_half_fovy = cos(fovx / 2);
-	float sin_half_fovy = sin(fovx / 2);
+    float cos_half_fovy = cos(fovy / 2);
+	float sin_half_fovy = sin(fovy / 2);
 
 	frustum_planes[LEFT_FRUSTUM_PLANE].point = vec3_new(0, 0, 0);
 	frustum_planes[LEFT_FRUSTUM_PLANE].normal.x = cos_half_fovx;
@@ -68,6 +68,7 @@ void init_frustum_planes(float fovx, float fovy, float z_near, float z_far) {
 polygon_t polygon_from_triangle(vec3_t v0, vec3_t v1, vec3_t v2, tex2_t t0, tex2_t t1, tex2_t t2){
     polygon_t polygon = {
         .vertices = {v0, v1, v2},
+        .texcoords = {t0, t1, t2},
         .num_vertices = 3
     };
     return polygon;
